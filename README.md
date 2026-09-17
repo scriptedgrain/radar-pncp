@@ -1,7 +1,6 @@
 # Radar PNCP
 
-API que consome o Portal Nacional de Contratações Públicas (PNCP),
-armazena licitações e permite consulta por filtros.
+Serviço de ingestão e consulta de dados do PNCP.
 
 ## Stack
 
@@ -10,3 +9,7 @@ armazena licitações e permite consulta por filtros.
 - xUnit + Testcontainers
 - Docker Compose
 - GitHub Actions
+
+## Status
+
+Atualmente o projeto encontra-se na semana 2-12, onde os comandos git estão sendo utilizados via linha de comando para maior familiarização
