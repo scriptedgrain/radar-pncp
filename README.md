@@ -1,7 +1,6 @@
 # Radar PNCP
 
-API que consome o Portal Nacional de Contratações Públicas (PNCP),
-armazena licitações e permite consulta por filtros.
+Serviço de ingestão e consulta de dados do PNCP.
 
 ## Stack
 
