@@ -35,11 +35,12 @@ public class RadarDbContext(DbContextOptions<RadarDbContext> options) : DbContex
             entity.HasIndex(e => e.TaxId).IsUnique();
         });
 
-        //Regras de tamanho máximo e exclusão restrita para a entidade unidade
+        //Regras de tamanho máximo, unicidade e exclusão restrita para a entidade unidade
         modelBuilder.Entity<GovernmentUnit>(entity =>
         {
             entity.Property(u => u.PncpUnitCode).HasMaxLength(9);
             entity.Property(u => u.StateCode).HasMaxLength(2);
+            entity.HasIndex(u => new { u.GovernmentEntityId, u.PncpUnitCode }).IsUnique();
 
             entity.HasOne<GovernmentEntity>()
                 .WithMany()
