@@ -1,5 +1,8 @@
 namespace RadarPncp.Api.Data.Entities;
 
+/// <summary>
+/// Unidade compradora 
+/// </summary>
 public class GovernmentUnit
 {
     /// <summary>
@@ -11,6 +14,11 @@ public class GovernmentUnit
     /// Órgão a que pertence
     /// </summary>
     public long GovernmentEntityId { get; set; }
+
+    /// <summary>
+    /// Propriedade de navegação do órgão a que pertence
+    /// </summary>
+    public GovernmentEntity GovernmentEntity { get; set; } = null!;
 
     /// <summary>
     /// Abreviação da unidade
@@ -30,5 +38,5 @@ public class GovernmentUnit
     /// <summary>
     /// Sigla UF da unidade
     /// </summary>
-    public required string StateCode { get; set; } = null!;
+    public required string StateCode { get; set; }
 }

@@ -4,8 +4,8 @@ using RadarPncp.Api.Data;
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<RadarDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("Radar") ??
-    throw new InvalidOperationException("Connection string 'Radar' não configurada.")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Radar") ?? throw new InvalidOperationException("Connection string 'Radar' não configurada."))
+           .UseSnakeCaseNamingConvention());
 
 WebApplication app = builder.Build();
 
