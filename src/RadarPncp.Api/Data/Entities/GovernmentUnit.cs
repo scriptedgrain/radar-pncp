@@ -21,11 +21,6 @@ public class GovernmentUnit
     public GovernmentEntity GovernmentEntity { get; set; } = null!;
 
     /// <summary>
-    /// Abreviação da unidade
-    /// </summary>
-    public required string AbbreviationName { get; set; }
-
-    /// <summary>
     /// Código no PNCP da unidade
     /// </summary>
     public required string PncpUnitCode { get; set; }
