@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RadarPncp.Api.Data;
+using RadarPncp.Api.Dev;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -10,5 +11,8 @@ builder.Services.AddDbContext<RadarDbContext>(options =>
 WebApplication app = builder.Build();
 
 app.MapGet("/health", () => Results.Ok());
+
+if (app.Environment.IsDevelopment())
+    app.MapDevSeed();
 
 app.Run();
