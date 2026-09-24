@@ -42,7 +42,7 @@ public class RadarDbContext(DbContextOptions<RadarDbContext> options) : DbContex
             entity.Property(u => u.StateCode).HasMaxLength(2);
             entity.HasIndex(u => new { u.GovernmentEntityId, u.PncpUnitCode }).IsUnique();
 
-            entity.HasOne<GovernmentEntity>()
+            entity.HasOne(u => u.GovernmentEntity)
                 .WithMany()
                 .HasForeignKey(u => u.GovernmentEntityId)
                 .OnDelete(DeleteBehavior.Restrict);
@@ -56,7 +56,7 @@ public class RadarDbContext(DbContextOptions<RadarDbContext> options) : DbContex
             entity.Property(p => p.EstimatedTotal).HasPrecision(18, 2);
             entity.Property(p => p.HomologatedTotal).HasPrecision(18, 2);
 
-            entity.HasOne<GovernmentUnit>()
+            entity.HasOne(p => p.GovernmentUnit)
                 .WithMany()
                 .HasForeignKey(p => p.GovernmentUnitId)
                 .OnDelete(DeleteBehavior.Restrict);
