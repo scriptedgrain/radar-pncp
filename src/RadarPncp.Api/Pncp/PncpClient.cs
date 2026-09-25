@@ -3,11 +3,12 @@ namespace RadarPncp.Api.Pncp;
 using System.Globalization;
 using System.Net;
 using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Options;
 
 /// <summary>
 /// Cliente tipado da API de consultas do PNCP
 /// </summary>
-public sealed class PncpClient(HttpClient httpClient)
+public sealed class PncpClient(HttpClient httpClient, IOptions<PncpOptions> options)
 {
     /// <summary>
     /// Máximo de registros por página aceito pela API
@@ -31,6 +32,9 @@ public sealed class PncpClient(HttpClient httpClient)
         //Enquanto houver páginas...
         while (page <= totalPages)
         {
+            //Pausa entre páginas (nunca antes da primeira)
+            if (page > 1) await Task.Delay(options.Value.DelayEntrePaginas, cancellationToken);
+
             PaginaPncpDto<ContratacaoDto> result =
                 await GetPageAsync(initialDate, finalDate, modalityCode, page, cancellationToken);
 
