@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using RadarPncp.Api.Data;
 using RadarPncp.Api.Dev;
+using RadarPncp.Api.Pncp;
 
 //Construtor do app
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -16,10 +17,17 @@ builder.Services.AddDbContext<RadarDbContext>(options =>
     if (builder.Environment.IsDevelopment()) options.EnableSensitiveDataLogging();
 });
 
+//Cliente tipado da API de consultas do PNCP com resiliência padrão
+builder.Services.AddHttpClient<PncpClient>(client =>
+{
+    //Barra final é necessária para compor com os caminhos relativos
+    client.BaseAddress = new Uri("https://pncp.gov.br/api/consulta/");
+}).AddStandardResilienceHandler();
+
 //Constroi o webapp
 WebApplication app = builder.Build();
 
-//Aidiciona as rotas
+//Adiciona as rotas
 app.MapGet("/health", () => Results.Ok());
 
 //Seed para testes e consultas
