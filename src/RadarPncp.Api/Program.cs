@@ -30,11 +30,12 @@ WebApplication app = builder.Build();
 //Adiciona as rotas
 app.MapGet("/health", () => Results.Ok());
 
-//Seed para testes e consultas
+//Seed para testes, consultas e chamada ao PNCP
 if (app.Environment.IsDevelopment())
 {
     app.MapDevSeed();
     app.MapDevQueries();
+    app.MapDevPncp();
 }
 
 //Tudo pronto

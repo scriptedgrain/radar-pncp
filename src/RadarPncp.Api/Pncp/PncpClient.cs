@@ -23,40 +23,56 @@ public sealed class PncpClient(HttpClient httpClient)
         int modalityCode,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        //Filtros de data
-        string inicio = initialDate.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
-        string fim = finalDate.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
-
         //Começa pela primeira página
-        int pagina = 1;
+        int page = 1;
         //Provisório: o valor real vem da primeira resposta
-        int totalPaginas = 1;
+        int totalPages = 1;
 
         //Enquanto houver páginas...
-        while (pagina <= totalPaginas)
+        while (page <= totalPages)
         {
-            //A URL de consulta pública
-            string url = $"v1/contratacoes/publicacao?dataInicial={inicio}&dataFinal={fim}" +
-                         $"&codigoModalidadeContratacao={modalityCode}&pagina={pagina}&tamanhoPagina={TamanhoPagina}";
-
-            using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken);
-
-            //204 vem com content-type json e corpo vazio: sem resultados ou página além do fim
-            if (response.StatusCode == HttpStatusCode.NoContent) yield break;
-
-            response.EnsureSuccessStatusCode();
-
             PaginaPncpDto<ContratacaoDto> result =
-                await response.Content.ReadFromJsonAsync<PaginaPncpDto<ContratacaoDto>>(cancellationToken)
-                ?? throw new InvalidOperationException("Resposta do PNCP sem conteúdo.");
+                await GetPageAsync(initialDate, finalDate, modalityCode, page, cancellationToken);
+
+            //Página vazia: sem resultados ou página além do fim
+            if (result.Data.Count == 0) yield break;
 
             //Só a primeira resposta define até onde ir
-            if (pagina == 1) totalPaginas = result.TotalPaginas;
+            if (page == 1) totalPages = result.TotalPaginas;
 
             foreach (ContratacaoDto contratacao in result.Data)
                 yield return contratacao;
 
-            pagina++;
+            page++;
         }
+    }
+
+    /// <summary>
+    /// Busca uma única página de contratações publicadas no período e modalidade informados
+    /// </summary>
+    public async Task<PaginaPncpDto<ContratacaoDto>> GetPageAsync(
+        DateOnly initialDate,
+        DateOnly finalDate,
+        int modalityCode,
+        int page,
+        CancellationToken cancellationToken = default)
+    {
+        //Filtros de data
+        string start = initialDate.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
+        string end = finalDate.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
+
+        //A URL de consulta pública
+        string url = $"v1/contratacoes/publicacao?dataInicial={start}&dataFinal={end}" +
+                     $"&codigoModalidadeContratacao={modalityCode}&pagina={page}&tamanhoPagina={TamanhoPagina}";
+
+        using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken);
+
+        //204 vem com content-type json e corpo vazio: devolve uma página vazia
+        if (response.StatusCode == HttpStatusCode.NoContent) return new PaginaPncpDto<ContratacaoDto>();
+
+        response.EnsureSuccessStatusCode();
+
+        return await response.Content.ReadFromJsonAsync<PaginaPncpDto<ContratacaoDto>>(cancellationToken)
+               ?? throw new InvalidOperationException("Resposta do PNCP sem conteúdo.");
     }
 }
