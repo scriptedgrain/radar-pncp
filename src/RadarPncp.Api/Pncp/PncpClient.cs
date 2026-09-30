@@ -69,14 +69,28 @@ public sealed class PncpClient(HttpClient httpClient, IOptions<PncpOptions> opti
         string url = $"v1/contratacoes/publicacao?dataInicial={start}&dataFinal={end}" +
                      $"&codigoModalidadeContratacao={modalityCode}&pagina={page}&tamanhoPagina={TamanhoPagina}";
 
-        using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken);
+        HttpResponseMessage response;
+        try
+        {
+            response = await httpClient.GetAsync(url, cancellationToken);
+        }
+        catch (HttpRequestException ex)
+        {
+            throw new PncpException(
+                $"Falha de conexão com o PNCP na página {page} de {initialDate:dd/MM/yyyy}, modalidade {modalityCode}.", ex);
+        }
 
-        //204 vem com content-type json e corpo vazio: devolve uma página vazia
-        if (response.StatusCode == HttpStatusCode.NoContent) return new PaginaPncpDto<ContratacaoDto>();
+        using (response)
+        {
+            //204 vem com content-type json e corpo vazio: devolve uma página vazia
+            if (response.StatusCode == HttpStatusCode.NoContent) return new PaginaPncpDto<ContratacaoDto>();
 
-        response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode)
+                throw new PncpException(
+                    $"PNCP respondeu {(int)response.StatusCode} na página {page} de {initialDate:dd/MM/yyyy}, modalidade {modalityCode}.");
 
-        return await response.Content.ReadFromJsonAsync<PaginaPncpDto<ContratacaoDto>>(cancellationToken)
-               ?? throw new InvalidOperationException("Resposta do PNCP sem conteúdo.");
+            return await response.Content.ReadFromJsonAsync<PaginaPncpDto<ContratacaoDto>>(cancellationToken)
+                ?? throw new PncpException("Resposta do PNCP sem conteúdo.");
+        }
     }
 }

@@ -10,11 +10,17 @@ using RadarPncp.Api.Pncp;
 public static class ContratacaoMapper
 {
     /// <summary>
+    /// Fuso das datas do PNCP (horário de Brasília, sem offset no JSON)
+    /// </summary>
+    private static readonly TimeZoneInfo SaoPaulo = TimeZoneInfo.FindSystemTimeZoneById("America/Sao_Paulo");
+
+    /// <summary>
     /// Método que faz o mapeamento pncp-radar para compras
     /// </summary>
     /// <param name="dto">Compra do PNCP</param>
+    /// <param name="ingestedAt">Momento da ingestão, em UTC</param>
     /// <returns>Retorna a entidade mapeada</returns>
-    public static Result<Procurement> ToProcurement(ContratacaoDto dto)
+    public static Result<Procurement> ToProcurement(ContratacaoDto dto, DateTime ingestedAt)
     {
         //Sem número de controle, ignora
         if (string.IsNullOrWhiteSpace(dto.NumeroControlePNCP))
@@ -84,15 +90,26 @@ public static class ContratacaoMapper
             HomologatedTotal = dto.ValorTotalHomologado,
             IsPriceRegistration = dto.Srp,
             HasParliamentaryAmendment = dto.EmendaParlamentar ?? false,
-            PublishDate = dto.DataPublicacaoPncp,
-            UpdateDate = dto.DataAtualizacaoGlobal,
-            ProposalOpeningDate = dto.DataAberturaProposta,
-            ProposalClosureDate = dto.DataEncerramentoProposta,
+            PublishDate = ToUtc(dto.DataPublicacaoPncp),
+            UpdateDate = ToUtc(dto.DataAtualizacaoGlobal),
+            ProposalOpeningDate = ToUtc(dto.DataAberturaProposta),
+            ProposalClosureDate = ToUtc(dto.DataEncerramentoProposta),
             Legislation = dto.AmparoLegal?.Nome,
             SolicitationId = dto.TipoInstrumentoConvocatorioCodigo,
             SolicitationName = dto.TipoInstrumentoConvocatorioNome,
             Publisher = dto.UsuarioNome,
-            IngestedAt = DateTime.Now
+            IngestedAt = ingestedAt
         });
     }
+
+    /// <summary>
+    /// Converte uma data do PNCP (horário de Brasília) para UTC
+    /// </summary>
+    private static DateTime ToUtc(DateTime value) =>
+        TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(value, DateTimeKind.Unspecified), SaoPaulo);
+
+    /// <summary>
+    /// Converte uma data opcional do PNCP (horário de Brasília) para UTC
+    /// </summary>
+    private static DateTime? ToUtc(DateTime? value) => value is null ? null : ToUtc(value.Value);
 }

@@ -13,5 +13,5 @@ public sealed class PncpOptions
     /// <summary>
     /// Tempo de espera entre uma página e outra
     /// </summary>
-    public TimeSpan DelayEntrePaginas { get; set; } = TimeSpan.FromSeconds(1);
+    public TimeSpan DelayEntrePaginas { get; set; } = TimeSpan.FromSeconds(3);
 }
