@@ -20,6 +20,13 @@ builder.Services.AddDbContext<RadarDbContext>(options =>
 //Configurações do cliente do PNCP (seção "Pncp")
 builder.Services.AddOptions<PncpOptions>().BindConfiguration(PncpOptions.Secao);
 
+//Configurações da ingestão no Radar (seção "Ingestao")
+builder.Services.AddOptions<IngestaoOptions>()
+                .BindConfiguration(IngestaoOptions.Secao)
+                .Validate(o => o.Intervalo > TimeSpan.Zero, "Ingestao:Intervalo deve ser maior que zero.")
+                .Validate(o => o.DiasRetroativos > 0, "Ingestao:DiasRetroativos deve ser maior que zero.")
+                .ValidateOnStart();
+
 //Cliente tipado da API de consultas do PNCP com resiliência
 builder.Services.AddHttpClient<PncpClient>(client =>
 {
