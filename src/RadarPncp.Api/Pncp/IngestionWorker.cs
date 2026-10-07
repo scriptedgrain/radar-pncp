@@ -120,7 +120,7 @@ public sealed class IngestionWorker(
         {
             //Contadores ficam zerados: o serviço não devolve resultado parcial
             run.Status = IngestionStatus.Failure;
-            run.Error = ex.Message;
+            run.Error = ex.GetBaseException().Message;
 
             logger.LogWarning(ex, "{Data:dd/MM/yyyy}, modalidade {Modalidade}: falha na ingestão.", date, modality);
         }
