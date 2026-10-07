@@ -43,7 +43,6 @@ public class RadarDbContext(DbContextOptions<RadarDbContext> options) : DbContex
         //Regras de tamanho máximo, unicidade e exclusão restrita para a entidade unidade
         modelBuilder.Entity<GovernmentUnit>(entity =>
         {
-            entity.Property(u => u.PncpUnitCode).HasMaxLength(9);
             entity.Property(u => u.StateCode).HasMaxLength(2);
             entity.HasIndex(u => new { u.GovernmentEntityId, u.PncpUnitCode }).IsUnique();
 
