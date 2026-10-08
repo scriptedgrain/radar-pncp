@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RadarPncp.Api.Data;
@@ -11,9 +12,11 @@ using RadarPncp.Api.Data;
 namespace RadarPncp.Api.Migrations
 {
     [DbContext(typeof(RadarDbContext))]
-    partial class RadarDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261006004011_CriaIngestionRuns")]
+    partial class CriaIngestionRuns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -72,7 +75,8 @@ namespace RadarPncp.Api.Migrations
 
                     b.Property<string>("PncpUnitCode")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(9)
+                        .HasColumnType("character varying(9)")
                         .HasColumnName("pncp_unit_code");
 
                     b.Property<string>("StateCode")

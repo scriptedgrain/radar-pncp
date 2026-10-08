@@ -40,6 +40,9 @@ builder.Services.AddHttpClient<PncpClient>(client =>
 //Serviço de ingestão: scoped porque depende do DbContext
 builder.Services.AddScoped<ProcurementIngestionService>();
 
+//Worker da ingestão automática (só age se Ingestao:Habilitada = true)
+builder.Services.AddHostedService<IngestionWorker>();
+
 //Constroi o webapp
 WebApplication app = builder.Build();
 

@@ -24,6 +24,11 @@ public class RadarDbContext(DbContextOptions<RadarDbContext> options) : DbContex
     public DbSet<Procurement> Procurements => Set<Procurement>();
 
     /// <summary>
+    /// Tabela de execuções da ingestão
+    /// </summary>
+    public DbSet<IngestionRun> IngestionRuns => Set<IngestionRun>();
+
+    /// <summary>
     /// Regras para criação do modelo
     /// </summary>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -38,7 +43,6 @@ public class RadarDbContext(DbContextOptions<RadarDbContext> options) : DbContex
         //Regras de tamanho máximo, unicidade e exclusão restrita para a entidade unidade
         modelBuilder.Entity<GovernmentUnit>(entity =>
         {
-            entity.Property(u => u.PncpUnitCode).HasMaxLength(9);
             entity.Property(u => u.StateCode).HasMaxLength(2);
             entity.HasIndex(u => new { u.GovernmentEntityId, u.PncpUnitCode }).IsUnique();
 
@@ -60,6 +64,13 @@ public class RadarDbContext(DbContextOptions<RadarDbContext> options) : DbContex
                 .WithMany()
                 .HasForeignKey(p => p.GovernmentUnitId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        //Status gravado como texto e índice de consulta por data e modalidade
+        modelBuilder.Entity<IngestionRun>(entity =>
+        {
+            entity.Property(r => r.Status).HasConversion<string>().HasMaxLength(20);
+            entity.HasIndex(r => new { r.ReferenceDate, r.ModalityId });
         });
     }
 }
