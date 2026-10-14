@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using RadarPncp.Api.Consultas;
 using RadarPncp.Api.Data;
 using RadarPncp.Api.Dev;
 using RadarPncp.Api.Pncp;
@@ -37,8 +38,9 @@ builder.Services.AddHttpClient<PncpClient>(client =>
     client.DefaultRequestHeaders.UserAgent.ParseAdd("RadarPncp/1.0 (+https://github.com/scriptedgrain/radar-pncp)");
 });
 
-//Serviço de ingestão: scoped porque depende do DbContext
+//Serviço de ingestão e consulta: scoped porque depende do DbContext
 builder.Services.AddScoped<ProcurementIngestionService>();
+builder.Services.AddScoped<ContratacaoQuery>();
 
 //Worker da ingestão automática (só age se Ingestao:Habilitada = true)
 builder.Services.AddHostedService<IngestionWorker>();

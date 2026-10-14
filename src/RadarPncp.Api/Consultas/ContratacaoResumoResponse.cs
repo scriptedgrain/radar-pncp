@@ -11,6 +11,7 @@ public sealed record ContratacaoResumoResponse(
     string Modalidade,
     string Situacao,
     decimal? ValorEstimado,
+    decimal? ValorHomologado,
     DateTime DataPublicacao,
     DateTime? DataAberturaProposta,
     string LinkPncp);
