@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using RadarPncp.Api.Consultas;
 using RadarPncp.Api.Data;
 using RadarPncp.Api.Dev;
 using RadarPncp.Api.Pncp;
+using Scalar.AspNetCore;
 
 //Construtor do app
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -37,17 +39,27 @@ builder.Services.AddHttpClient<PncpClient>(client =>
     client.DefaultRequestHeaders.UserAgent.ParseAdd("RadarPncp/1.0 (+https://github.com/scriptedgrain/radar-pncp)");
 });
 
-//Serviço de ingestão: scoped porque depende do DbContext
+//Serviço de ingestão e consulta: scoped porque depende do DbContext
 builder.Services.AddScoped<ProcurementIngestionService>();
+builder.Services.AddScoped<ContratacaoQuery>();
+builder.Services.AddProblemDetails();
 
 //Worker da ingestão automática (só age se Ingestao:Habilitada = true)
 builder.Services.AddHostedService<IngestionWorker>();
+
+//Geração do documento OpenAPI nativo do .NET
+builder.Services.AddOpenApi();
 
 //Constroi o webapp
 WebApplication app = builder.Build();
 
 //Adiciona as rotas
 app.MapGet("/health", () => Results.Ok());
+app.MapContratacoes();
+
+//Documentação em todos os ambientes: JSON em /openapi/v1.json e interface do Scalar em /scalar
+app.MapOpenApi();
+app.MapScalarApiReference();
 
 //Seed para testes, consultas e chamada ao PNCP
 if (app.Environment.IsDevelopment())
