@@ -5,7 +5,7 @@ using RadarPncp.Api.Data;
 using RadarPncp.Api.Data.Entities;
 
 /// <summary>
-/// Resumo de uma contratação devolvido pela consulta
+/// Consulta de contratações com filtros e paginação
 /// </summary>
 public sealed class ContratacaoQuery(RadarDbContext db)
 {
@@ -32,10 +32,13 @@ public sealed class ContratacaoQuery(RadarDbContext db)
         if (!string.IsNullOrWhiteSpace(filtro.Texto))
             query = query.Where(p => EF.Functions.ILike(p.Object, $"%{filtro.Texto}%"));
         if (!string.IsNullOrWhiteSpace(filtro.Uf))
-            query = query.Where(p => p.GovernmentUnit.StateCode.Equals(filtro.Uf.Trim(), StringComparison.InvariantCultureIgnoreCase));
+        {
+            string uf = filtro.Uf.Trim().ToUpperInvariant();
+            query = query.Where(p => p.GovernmentUnit.StateCode == uf);
+        }
         if (filtro.Modalidade is int modalidade && modalidade > 0)
             query = query.Where(p => p.ModalityId == modalidade);
-        if (filtro.DataInicial.HasValue && filtro.DataInicial is DateOnly initialDate && initialDate != DateOnly.MinValue)
+        if (filtro.DataInicial is DateOnly initialDate)
         {
             //Meia-noite do dia inicial em Brasília, convertida para UTC
             DateTime utcStart = TimeZoneInfo.ConvertTimeToUtc(
@@ -64,7 +67,7 @@ public sealed class ContratacaoQuery(RadarDbContext db)
             .Select(p => new ContratacaoResumoResponse(
                 p.PncpControlNumber,
                 p.Object,
-                p.GovernmentUnit.Name,
+                p.GovernmentUnit.GovernmentEntity.Name,
                 p.GovernmentUnit.StateCode,
                 p.ModalityName,
                 p.StatusName,
